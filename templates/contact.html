@@ -1,0 +1,70 @@
+{%extends 'base.html' %}
+
+{% block title %} Contact{% endblock title %}
+
+{% block body %} 
+
+<div class="container-fluid my-4">
+    
+    <img src="/static/pic/11.jpg" style="width: 100%; height: 700px; object-fit: cover;">
+    
+</div>
+<div class="container" style=" 
+    display: flex;  
+    justify-content: center;  
+    align-items: center;  
+    height: 55vh;  /* Full viewport height for proper centering */
+    padding: 20px;">  <!-- Added padding to prevent edges touching the screen -->
+    
+    <div class="details" style=" 
+        display: inline-block; /* Makes the block expand/shrink based on content */
+        max-width: 1000px;  /* Prevents block from becoming too wide */
+        min-width: 250px;  /* Ensures it doesn't shrink too much */
+        padding: 15px;  
+        background-color: #f0f0f0;  
+        border-radius: 15px;  
+        border: 2px solid #ccc;  
+        text-align: center;  
+        font-family: 'Times New Roman', serif;">
+        <h1 class="text-center" style="font-family: 'Times New Roman', serif;">Details</h1>
+        <img src="static/menu/1.png" style="
+            width: 100%;  
+            height: auto;  
+            max-height: 120px;  
+            object-fit: contain;  
+            border-radius: 10px;">  
+
+        <p style="margin: 5px 0;"><strong>Name:</strong> Dawa Karpo</p>
+        <p style="margin: 5px 0;"><strong>E-mail:</strong> tenzinmoon76@gmail.com</p>
+        <p style="margin: 5px 0;"><strong>Contact No:</strong> 9528432484</p>
+        <p style="margin: 5px 0;"><strong>Address:</strong> 123 Main Street, City, Country</p>
+        <p style="margin: 5px 0;"><strong>Occupation:</strong> Software Developer</p>
+    </div>
+</div>
+<div class="container mb-3 py-4">
+    <form method="post" action="/contact"> 
+    {% csrf_token %}
+       <div class="mb-3">
+         <label for="name" class="form-label">Name</label>
+         <input type="text" class="form-control" id="name" name="name" placeholder="Enter your Name ">
+       </div>
+       <div class="mb-3">
+         <label for="email" class="form-label">Email</label>
+         <input type="email" class="form-control" name="email" id="email" placeholder="Enter your Email">
+       </div>
+       <div class="mb-3">
+           <label for="phone" class="form-label">Phone No</label>
+           <input type="phone" class="form-control" name="phone" id="phone" placeholder="Enter your Phone Number">
+        </div>
+        <div class="mb-3">
+           <label for="desc">Description</label>
+           <textarea class="form-control" id="desc" name="desc" rows="3"></textarea>
+        </div>
+    
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+
+
+{% endblock body %}

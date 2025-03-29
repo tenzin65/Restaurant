@@ -1,0 +1,176 @@
+/* Navbar Custom Styling */
+.custom-navbar {
+    background-color: #2c3e50; /* Solid Dark Blue Background */
+    padding: 10px 20px;
+}
+
+/* Optional Gradient Background (Uncomment if needed) */
+/*
+.custom-navbar {
+    background: linear-gradient(to right, #007bff, #6610f2);
+}
+*/
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: white !important;
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffdd57 !important;
+}
+
+/* Search Box & Button */
+.search-box {
+    border-radius: 25px;
+    padding: 8px 15px;
+    border: 2px solid white;
+}
+
+.search-btn {
+    background-color: #ffdd57;
+    color: black;
+    border-radius: 25px;
+    padding: 8px 15px;
+    transition: all 0.3s ease-in-out;
+}
+
+.search-btn:hover {
+    background-color: white;
+    color: #007bff;
+    border: 2px solid #007bff;
+}
+
+
+/* product div image  */
+.image-container {
+    width: 150px; /* Fixed width */
+    height: 150px; /* Fixed height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa; /* Light background */
+    overflow: hidden;
+    margin: auto; /* Center the div */
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.card {
+    width: 100%;
+    max-width: 250px; /* Adjust width for better layout */
+    margin: auto; /* Center the card */
+}
+/* login page  */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    width: 350px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container img {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 15px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+form {
+    width: 100%;
+}
+
+.form-group {
+    width: 100%;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+p {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+/* item details display */
+.description {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.description.show {
+    display: block;
+    opacity: 1;
+}

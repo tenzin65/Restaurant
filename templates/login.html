@@ -1,0 +1,27 @@
+{%extends 'base.html' %}
+{% comment %} id-TenzinDakar76
+password-9679989179 {% endcomment %}
+
+{% block body %} 
+<div class="login-container">
+        <img src="static/menu/1.png">
+        <h2 class="text-center">Login</h2>
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <label>Username:</label>
+            <input type="text" name="username" placeholder="Enter Username" required>
+            
+            <label>Password:</label>
+            <input type="password" name="password" placeholder="Enter Password" required>
+    
+            <button type="submit">Login</button>
+        </form>
+    
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+</div>
+
+{% endblock body %}

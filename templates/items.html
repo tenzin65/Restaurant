@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block body %}
+{% load static %}
+
+<div class="container" style="max-width: 1200px; margin: auto; padding: 20px;">
+    <h1 class="text-center">Menus</h1>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
+        {% for product in product %}
+        <div style="width: calc(33.33% - 20px); border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; background-color: #fff;">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
+            <h2>{{ product.name }}</h2>
+            <p><strong>Price: ₹{{ product.price }}</strong></p>
+
+            <!-- View Details button -->
+            <button class="view-details-btn" 
+                    data-name="{{ product.name }}" 
+                    data-description="{{ product.description|escapejs }}" 
+                    data-price="{{ product.price }}"
+                    data-image="{{ product.image.url }}"
+                    style="background-color: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+                View Details
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Popup Modal -->
+<div id="popup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 10px; width: 50%; text-align: center; position: relative;">
+        <span onclick="closePopup()" style="position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer;">✖</span>
+        <img id="popup-image" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
+        <h2 id="popup-title"></h2>
+        <p id="popup-description" style="white-space: pre-line; text-align: left; padding: 10px;"></p>
+        <p><strong>Price: ₹<span id="popup-price"></span></strong></p>
+
+        <!-- Place Order Button -->
+        <button id="place-order-btn" 
+                onclick="placeOrder()" 
+                style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            Place Order
+        </button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        updateCartCount();
+    
+        document.querySelectorAll(".view-details-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                selectedItem = {
+                    name: this.getAttribute("data-name"),
+                    description: this.getAttribute("data-description"),
+                    price: this.getAttribute("data-price"),
+                    image: this.getAttribute("data-image")
+                };
+    
+                // Decode HTML entities in description
+                const parser = new DOMParser();
+                selectedItem.description = parser.parseFromString(selectedItem.description, "text/html").body.textContent;
+    
+                // Set popup modal content
+                document.getElementById('popup-title').innerText = selectedItem.name;
+                document.getElementById('popup-description').innerText = selectedItem.description;
+                document.getElementById('popup-price').innerText = selectedItem.price;
+                document.getElementById('popup-image').src = selectedItem.image;
+    
+                // Reset button text
+                document.getElementById('place-order-btn').innerText = "Place Order";
+                document.getElementById('place-order-btn').style.backgroundColor = "green";
+    
+                // Show the modal
+                document.getElementById('popup-modal').style.display = "flex";
+            });
+        });
+    
+        // Close popup when clicking outside the modal
+        window.onclick = function (event) {
+            var modal = document.getElementById('popup-modal');
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+    });
+    
+    // Function to update cart count in the navbar
+    function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            cartCountElement.innerText = cart.length;
+        }
+    }
+    
+    // Function to add item to cart and update count
+    function placeOrder() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+        // Add selected item if it's not already in the cart
+        let itemExists = cart.some(item => item.name === selectedItem.name);
+        if (!itemExists) {
+            cart.push(selectedItem);
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+    
+        // Update cart count
+        updateCartCount();
+    
+        alert("✅ " + selectedItem.name + " has been added to your cart!");
+    
+        // Close popup after adding item
+        closePopup();
+    }
+    
+    // Function to close popup
+    function closePopup() {
+        document.getElementById('popup-modal').style.display = "none";
+    }
+    
+    // Update cart count on page load
+    document.addEventListener("DOMContentLoaded", updateCartCount);
+    
+    
+</script>
+
+{% endblock body %}
