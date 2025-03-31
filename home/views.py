@@ -10,7 +10,7 @@ import razorpay
 from django.conf import settings
 from django.shortcuts import render
 from django.http import JsonResponse
-# from .models import Userss
+# from home.models import Userss
 # from django.contrib.auth.hashers import check_password
 # from django.contrib.auth.hashers import make_password
 
