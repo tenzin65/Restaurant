@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from home import views
+# from home.views import login_view
 # from home.views import registerUser
 
 urlpatterns = [
@@ -15,6 +16,7 @@ urlpatterns = [
     path('cart', views.cart, name='cart'),
     path('initiate-payment', views.initiate_payment, name='initiate_payment'),
     path('order-success', views.order_success, name='order_success'),
+    
     
     # path("register/", views.registerUser, name="register"),
    

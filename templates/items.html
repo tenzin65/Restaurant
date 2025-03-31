@@ -16,7 +16,7 @@
             <!-- View Details button -->
             <button class="view-details-btn" 
                     data-name="{{ product.name }}" 
-                    data-description="{{ product.description|escapejs }}" 
+                    data-description="{{ product.description|linebreaks }}" 
                     data-price="{{ product.price }}"
                     data-image="{{ product.image.url }}"
                     style="background-color: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
@@ -64,13 +64,21 @@
     
                 // Set popup modal content
                 document.getElementById('popup-title').innerText = selectedItem.name;
-                document.getElementById('popup-description').innerText = selectedItem.description;
+                document.getElementById('popup-description').innerHTML = selectedItem.description;
                 document.getElementById('popup-price').innerText = selectedItem.price;
                 document.getElementById('popup-image').src = selectedItem.image;
     
-                // Reset button text
-                document.getElementById('place-order-btn').innerText = "Place Order";
-                document.getElementById('place-order-btn').style.backgroundColor = "green";
+                // Set button text and color based on whether the item is already in the cart
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let itemExists = cart.some(item => item.name === selectedItem.name);
+    
+                if (itemExists) {
+                    document.getElementById('place-order-btn').innerText = "Remove from Cart";
+                    document.getElementById('place-order-btn').style.backgroundColor = "red";
+                } else {
+                    document.getElementById('place-order-btn').innerText = "Place Order";
+                    document.getElementById('place-order-btn').style.backgroundColor = "green";
+                }
     
                 // Show the modal
                 document.getElementById('popup-modal').style.display = "flex";
@@ -95,23 +103,27 @@
         }
     }
     
-    // Function to add item to cart and update count
+    // Function to add or remove item from cart and update count
     function placeOrder() {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
     
-        // Add selected item if it's not already in the cart
-        let itemExists = cart.some(item => item.name === selectedItem.name);
-        if (!itemExists) {
+        if (itemIndex !== -1) {
+            // Item exists, so remove it
+            cart.splice(itemIndex, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert("❌ " + selectedItem.name + " has been removed from your cart!");
+        } else {
+            // Item doesn't exist, so add it
             cart.push(selectedItem);
             localStorage.setItem('cart', JSON.stringify(cart));
+            alert("✅ " + selectedItem.name + " has been added to your cart!");
         }
     
         // Update cart count
         updateCartCount();
     
-        alert("✅ " + selectedItem.name + " has been added to your cart!");
-    
-        // Close popup after adding item
+        // Close popup after updating
         closePopup();
     }
     
@@ -119,10 +131,6 @@
     function closePopup() {
         document.getElementById('popup-modal').style.display = "none";
     }
-    
-    // Update cart count on page load
-    document.addEventListener("DOMContentLoaded", updateCartCount);
-    
     
 </script>
 

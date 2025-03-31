@@ -15,6 +15,7 @@ class Contact(models.Model):
         return self.name
 
 class Product(models.Model):
+    
     name = models.CharField(max_length=200)
     description = models.TextField()  # This should match the database column name
     price = models.DecimalField(max_digits=10, decimal_places=2)

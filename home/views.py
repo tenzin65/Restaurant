@@ -27,11 +27,11 @@ from django.http import JsonResponse
 #     if request.user.is_anonymous:
 #         return redirect("/login")
 #     return render(request, 'index.html', context)
+
 def index(request):
-    if not request.session.get('user_id'):  # Check if user is logged in
-        return redirect('login')  # Redirect to login page
-    
-    return render(request, 'index.html')  # If logged in, show home page
+    if request.user.is_authenticated:  
+        return render(request, 'index.html')
+    return redirect('login')  # Redirects to login if not authenticated
 
 
 def about(request):

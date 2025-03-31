@@ -32,25 +32,41 @@
   <h1 class="text-center">Add Items</h1>
   <form method="post" action="/product" enctype="multipart/form-data" id="item-form"> 
     {% csrf_token %}
+    
     <div class="mb-3">
       <label for="name" class="form-label">Product Name:</label>
       <input type="text" class="form-control" id="name" name="name" placeholder="Enter the Item Name" required>
     </div>
+
     <div class="mb-3">
-     <label for="description">Description</label>
-     <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+      <label for="description">Description</label>
+      <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
     </div>
+
     <div class="mb-3">
       <label for="price" class="form-label">Price:</label>
       <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="Please enter the price" required>
     </div>
+
     <div class="mb-3">
-        <label for="image" class="form-label">Image</label>
-        <input type="file" class="form-control" name="image" id="image" accept="image/*" required>
+      <label for="category" class="form-label">Category:</label>
+      <select class="form-control" id="category" name="category" required>
+        <option value="" disabled selected>Select Category</option>
+        <option value="Veg">Veg</option>
+        <option value="Non-Veg">Non-Veg</option>
+        <option value="Cold Drinks">Cold Drinks</option>
+      </select>
     </div>
+
+    <div class="mb-3">
+      <label for="image" class="form-label">Image</label>
+      <input type="file" class="form-control" name="image" id="image" accept="image/*" required>
+    </div>
+
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 </div>
+
 
 <!-- ✅ Success Popup Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
