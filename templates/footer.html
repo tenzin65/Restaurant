@@ -1,0 +1,48 @@
+{% load static %}
+<footer class="bg-dark text-white pt-4 mt-5">
+    <div class="container text-center text-md-start">
+      <div class="row">
+        <!-- About -->
+        <div class="col-md-3 mb-4">
+          <h5>About Us</h5>
+          <p>We provide quality products with fast and reliable service. Your satisfaction is our priority.</p>
+        </div>
+  
+        <!-- Quick Links -->
+        <div class="col-md-3 mb-4">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/" class="text-white text-decoration-none">Home</a></li>
+            <li><a href="/product" class="text-white text-decoration-none">Add Product</a></li>
+            <li><a href="/contact" class="text-white text-decoration-none">Contact</a></li>
+          </ul>
+        </div>
+  
+        <!-- Contact -->
+        <div class="col-md-3 mb-4">
+          <h5>Contact Us</h5>
+          <p>Email: info@example.com</p>
+          <p>Phone: +91-1234567890</p>
+          <p>Address: Your Street, City, Country</p>
+        </div>
+  
+        <!-- Follow Us -->
+        <div class="col-md-3 mb-4">
+          <h5>Follow Us</h5>
+          <a href="https://www.facebook.com/" target="_blank" class="me-3">
+            <img src="{% static 'icon/1.png' %}" alt="Facebook" width="30">
+          </a>
+          <a href="https://www.instagram.com/" target="_blank" class="me-3">
+            <img src="{% static 'icon/7.png' %}" alt="Instagram" width="30">
+          </a>
+          <a href="https://wa.me/1234567890" target="_blank">
+            <img src="{% static 'icon/9.png' %}" alt="WhatsApp" width="30">
+          </a>
+        </div>
+      </div>
+    </div>
+  
+    <div class="bg-secondary text-center py-3">
+      &copy; {{ year }} Dawa Karpo . All rights reserved.
+    </div>
+  </footer>

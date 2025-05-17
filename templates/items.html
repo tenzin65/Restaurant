@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
+
 {% block body %}
-{% load static %}
+
 
 <div class="container" style="max-width: 1200px; margin: auto; padding: 20px;">
     <h1 class="text-center">Menus</h1>
+    <h2 class="flash-text ">Please Refresh the page if items is removed from cart</h2>
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
         {% for product in product %}
         <div style="width: calc(33.33% - 20px); border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; background-color: #fff;">

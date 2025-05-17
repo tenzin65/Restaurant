@@ -7,6 +7,9 @@
 
 
 
+
+
+
 {% comment %} Slider {% endcomment %}
 <div class="container-fluid my-4">
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
@@ -44,7 +47,7 @@
   
   
 {% comment %} div block {% endcomment %}
-<div class="container my-5">
+{% comment %} <div class="container my-5">
     <div class="album py-5 bg-body-tertiary">
       <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
@@ -119,61 +122,96 @@
       </div> <!-- Close container -->
     </div> <!-- Close album -->
   </div>
+</div> {% endcomment %}
 
 {% comment %} login option  {% endcomment %}
+
 <script>
-    window.onload = function() {
-        let user = "{{ request.user }}";
-        
-        // Create a custom pop-up
-        let popup = document.createElement("div");
-        popup.style.position = "fixed";
-        popup.style.top = "50%";
-        popup.style.left = "50%";
-        popup.style.transform = "translate(-50%, -50%)";
-        popup.style.background = "#fff";
-        popup.style.padding = "20px";
-        popup.style.border = "1px solid #ccc";
-        popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.2)";
-        popup.style.textAlign = "center";
-        popup.style.borderRadius = "10px";
-        popup.innerHTML = `<p>Welcome ${user}!<br>You have successfully logged in to the Admin site.</p>`;
+  document.addEventListener("DOMContentLoaded", function() {
+      let popupShown = "{{ popup_shown }}";  // Get value from views.py
 
-        // Create "Stay" button
-        let stayButton = document.createElement("button");
-        stayButton.innerText = "Stay";
-        stayButton.style.marginRight = "10px";
-        stayButton.style.padding = "8px 15px";
-        stayButton.style.border = "none";
-        stayButton.style.background = "#28a745";
-        stayButton.style.color = "#fff";
-        stayButton.style.borderRadius = "5px";
-        stayButton.style.cursor = "pointer";
-        stayButton.onclick = function() {
-            document.body.removeChild(popup);
-        };
+      if (popupShown === "False") {  // Show pop-up only if not shown before
+          let user = "{{ request.user }}";
 
-        // Create "Logout" button
-        let logoutButton = document.createElement("button");
-        logoutButton.innerText = "Logout";
-        logoutButton.style.padding = "8px 15px";
-        logoutButton.style.border = "none";
-        logoutButton.style.background = "#dc3545";
-        logoutButton.style.color = "#fff";
-        logoutButton.style.borderRadius = "5px";
-        logoutButton.style.cursor = "pointer";
-        logoutButton.onclick = function() {
-            window.location.href = "/logout";
-        };
+          // Create a pop-up
+          let popup = document.createElement("div");
+          popup.style.position = "fixed";
+          popup.style.top = "50%";
+          popup.style.left = "50%";
+          popup.style.transform = "translate(-50%, -50%)";
+          popup.style.background = "#fff";
+          popup.style.padding = "20px";
+          popup.style.border = "1px solid #ccc";
+          popup.style.boxShadow = "0 0 10px rgba(0,0,0,0.2)";
+          popup.style.textAlign = "center";
+          popup.style.borderRadius = "10px";
+          popup.innerHTML = `<p>Welcome ${user}!<br>You have successfully logged in.</p>`;
 
-        // Append buttons to the pop-up
-        popup.appendChild(stayButton);
-        popup.appendChild(logoutButton);
+          // Create "Logout" button
+          let logoutButton = document.createElement("button");
+          logoutButton.innerText = "Logout";
+          logoutButton.style.padding = "8px 15px";
+          logoutButton.style.border = "none";
+          logoutButton.style.background = "#dc3545";
+          logoutButton.style.color = "#fff";
+          logoutButton.style.borderRadius = "5px";
+          logoutButton.style.cursor = "pointer";
+          logoutButton.onclick = function() {
+              window.location.href = "/logout";
+          };
 
-        // Append pop-up to the body
-        document.body.appendChild(popup);
-    };
+          // Append button to the pop-up
+          popup.appendChild(logoutButton);
+
+          // Append pop-up to the body
+          document.body.appendChild(popup);
+      }
+  });
 </script>
+<div class="button-container">
+  <button class="fancy-button" onclick="window.location.href='items'">Menus</button>
+</div><br>
+
+{% comment %} Message slider {% endcomment %}
+<h1 class="text-center text-4xl font-extrabold my-6 text-transparent bg-clip-text moving-gradient blink"
+  style="background-image: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);">
+  Customer Thought
+</h1>
+{% if contact_messages %}
+<div id="contactMessageSlider" class="carousel slide my-5" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    {% for msg in contact_messages %}
+    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+      <div class="d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 300px;">
+        <p class="fs-4 fst-italic px-4">"{{ msg.desc|default:'No message' }}"</p>
+        <p class="fw-bold text-primary mt-2">— {{ msg.name|default:'Anonymous' }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Controller Buttons -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#contactMessageSlider" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#contactMessageSlider" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+{% else %}
+<div class="text-center my-5">
+  <h4>No messages to display.</h4>
+</div>
+{% endif %}
+
+
+
+
+
+
+
 
 
   
