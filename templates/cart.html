@@ -49,37 +49,42 @@
     }
     
     function loadCartItems() {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let cartContainer = document.getElementById('cart-items');
-        let totalPrice = 0;
-    
-        cartContainer.innerHTML = ""; // Clear previous items
-    
-        if (cart.length === 0) {
-            cartContainer.innerHTML = "<p style='text-align: center;'>Your cart is empty.</p>";
-        }
-    
-        cart.forEach((item, index) => {
-            totalPrice += parseFloat(item.price);
-    
-            let cartItem = document.createElement('div');
-            cartItem.style = "display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #fff;";
-    
-            cartItem.innerHTML = `
-                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
-                <div>
-                    <h4>${item.name}</h4>
-                    <p>Price: ₹${item.price}</p>
-                </div>
-                <button onclick="removeFromCart(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Remove</button>
-            `;
-    
-            cartContainer.appendChild(cartItem);
-        });
-    
-        document.getElementById('total-price').innerText = totalPrice.toFixed(2);
-        document.getElementById('pay-now').setAttribute("data-amount", totalPrice * 100);
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cartContainer = document.getElementById('cart-items');
+    let totalPrice = 0;
+
+    cartContainer.innerHTML = ""; // Clear previous items
+
+    if (cart.length === 0) {
+        cartContainer.innerHTML = "<p style='text-align: center;'>Your cart is empty.</p>";
+        document.getElementById('total-price').innerText = "0";
+        return;
     }
+
+    cart.forEach((item, index) => {
+        let itemTotal = parseFloat(item.price) * (item.quantity || 1);
+        totalPrice += itemTotal;
+
+        let cartItem = document.createElement('div');
+        cartItem.style = "display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #fff;";
+
+        cartItem.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+            <div>
+                <h4>${item.name}</h4>
+                <p>Price: ₹${item.price} × ${item.quantity || 1}</p>
+                <p><strong>Subtotal: ₹${itemTotal.toFixed(2)}</strong></p>
+            </div>
+            <button onclick="removeFromCart(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Remove</button>
+        `;
+
+        cartContainer.appendChild(cartItem);
+    });
+
+    document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+    document.getElementById('pay-now').setAttribute("data-amount", totalPrice * 100);
+}
+
     
     function removeFromCart(index) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];

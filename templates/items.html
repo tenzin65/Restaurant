@@ -29,7 +29,7 @@
     </div>
 </div> {% endcomment %}
 
-<div class="container" style="max-width: 1200px; margin: auto; padding: 20px;">
+<div class="container" style="max-width: 1500px; margin: auto; padding: 20px;">
     <h1 class="text-center">Menus</h1>
     <h2 class="flash-text">Please refresh the page if item is removed from cart</h2>
 
@@ -67,9 +67,11 @@
     {% endfor %}
 </div>
 
-<!-- Popup Modal -->
+
+
+<!-- Your Popup Modal -->
 <div id="popup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
-    <div style="background: white; padding: 20px; border-radius: 10px; width: 600px; height: 600px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
+    <div style="background: white; padding: 20px; border-radius: 10px; width: 800px; height: 600px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
         <span onclick="closePopup()" style="position: absolute; top: 10px; right: 15px; font-size: 18px; cursor: pointer;">✖</span>
         <img id="popup-image" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
         <h2 id="popup-title"></h2>
@@ -82,50 +84,71 @@
                 style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
             Place Order
         </button>
+
+        <!-- Add More Button, hidden by default -->
+        <button id="add-more-btn" 
+                onclick="addMore()" 
+                style="background-color: blue; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; display: none;">
+            Add More
+        </button>
     </div>
 </div>
 
+
 <script>
+    let selectedItem = null;
+
     document.addEventListener("DOMContentLoaded", function () {
         updateCartCount();
-    
+        renderCart();
+
         document.querySelectorAll(".view-details-btn").forEach(button => {
             button.addEventListener("click", function () {
                 selectedItem = {
                     name: this.getAttribute("data-name"),
                     description: this.getAttribute("data-description"),
-                    price: this.getAttribute("data-price"),
-                    image: this.getAttribute("data-image")
+                    price: parseFloat(this.getAttribute("data-price")),
+                    image: this.getAttribute("data-image"),
+                    quantity: 1
                 };
-    
+
                 // Decode HTML entities in description
                 const parser = new DOMParser();
                 selectedItem.description = parser.parseFromString(selectedItem.description, "text/html").body.textContent;
-    
+
                 // Set popup modal content
                 document.getElementById('popup-title').innerText = selectedItem.name;
                 document.getElementById('popup-description').innerHTML = selectedItem.description;
-                document.getElementById('popup-price').innerText = selectedItem.price;
+                document.getElementById('popup-price').innerText = selectedItem.price.toFixed(2);
                 document.getElementById('popup-image').src = selectedItem.image;
-    
-                // Set button text and color based on whether the item is already in the cart
+
                 let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                let itemExists = cart.some(item => item.name === selectedItem.name);
-    
-                if (itemExists) {
+                let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
+
+                if (itemIndex !== -1) {
+                    // Item is already in cart
                     document.getElementById('place-order-btn').innerText = "Remove from Cart";
                     document.getElementById('place-order-btn').style.backgroundColor = "red";
+
+                    document.getElementById('add-more-btn').style.display = "inline-block";
+
+                    let item = cart[itemIndex];
+                    let totalPrice = item.price * item.quantity;
+                    document.getElementById('popup-price').innerText = totalPrice.toFixed(2);
                 } else {
                     document.getElementById('place-order-btn').innerText = "Place Order";
                     document.getElementById('place-order-btn').style.backgroundColor = "green";
+
+                    document.getElementById('add-more-btn').style.display = "none";
+
+                    document.getElementById('popup-price').innerText = selectedItem.price.toFixed(2);
                 }
-    
-                // Show the modal
+
+                // Show modal
                 document.getElementById('popup-modal').style.display = "flex";
             });
         });
-    
-        // Close popup when clicking outside the modal
+
         window.onclick = function (event) {
             var modal = document.getElementById('popup-modal');
             if (event.target === modal) {
@@ -133,45 +156,83 @@
             }
         };
     });
-    
-    // Function to update cart count in the navbar
+
     function updateCartCount() {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let cartCountElement = document.getElementById('cart-count');
         if (cartCountElement) {
-            cartCountElement.innerText = cart.length;
+            let totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.innerText = totalQuantity;
         }
+        renderCart(); // Update cart display whenever count updates
     }
-    
-    // Function to add or remove item from cart and update count
+
+    function renderCart() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartDisplay = document.getElementById('cart-display');
+        if (!cartDisplay) return;
+
+        if (cart.length === 0) {
+            cartDisplay.innerHTML = "<p>Your cart is empty.</p>";
+            return;
+        }
+
+        let html = '<ul style="list-style:none; padding:0;">';
+
+        cart.forEach(item => {
+            let totalPrice = (item.price * item.quantity).toFixed(2);
+            html += `
+                <li style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+                    <strong>${item.name}</strong><br>
+                    Quantity: ${item.quantity}<br>
+                    Price per item: ₹${item.price.toFixed(2)}<br>
+                    Total: ₹${totalPrice}
+                </li>
+            `;
+        });
+
+        html += '</ul>';
+        cartDisplay.innerHTML = html;
+    }
+
     function placeOrder() {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
-    
+
         if (itemIndex !== -1) {
-            // Item exists, so remove it
             cart.splice(itemIndex, 1);
             localStorage.setItem('cart', JSON.stringify(cart));
             alert("❌ " + selectedItem.name + " has been removed from your cart!");
         } else {
-            // Item doesn't exist, so add it
-            cart.push(selectedItem);
+            cart.push({...selectedItem});
             localStorage.setItem('cart', JSON.stringify(cart));
             alert("✅ " + selectedItem.name + " has been added to your cart!");
         }
-    
-        // Update cart count
+
         updateCartCount();
-    
-        // Close popup after updating
         closePopup();
     }
-    
-    // Function to close popup
+
+    function addMore() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
+
+        if (itemIndex !== -1) {
+            cart[itemIndex].quantity += 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            let newTotalPrice = cart[itemIndex].price * cart[itemIndex].quantity;
+            document.getElementById('popup-price').innerText = newTotalPrice.toFixed(2);
+
+            alert("✅ Added one more " + selectedItem.name + " to your cart!");
+            updateCartCount();
+        }
+    }
+
     function closePopup() {
         document.getElementById('popup-modal').style.display = "none";
     }
-    
 </script>
+
 
 {% endblock body %}
