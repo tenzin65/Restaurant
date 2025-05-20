@@ -27,8 +27,9 @@
       </button>
   </div>
 </div>
+{% comment %} product form  {% endcomment %}
 
-<div class="container mb-3 py-4">
+ <div class="container mb-3 py-4">
   <h1 class="text-center">Add Items</h1>
   <form method="post" action="/product" enctype="multipart/form-data" id="item-form"> 
     {% csrf_token %}
@@ -48,24 +49,61 @@
       <input type="number" class="form-control" name="price" id="price" step="0.01" placeholder="Please enter the price" required>
     </div>
 
-    {% comment %} <div class="mb-3">
+    <div class="mb-3">
       <label for="category" class="form-label">Category:</label>
       <select class="form-control" id="category" name="category" required>
         <option value="" disabled selected>Select Category</option>
-        <option value="Veg">Veg</option>
-        <option value="Non-Veg">Non-Veg</option>
-        <option value="Cold Drinks">Cold Drinks</option>
+        <option value="veg">Veg</option>
+        <option value="non_veg">Non-Veg</option>
+        <option value="cold_drinks">Cold Drinks</option>
+        <option value="snacks">Snacks</option>
       </select>
-    </div> {% endcomment %}
+
+    </div> 
 
     <div class="mb-3">
       <label for="image" class="form-label">Image</label>
       <input type="file" class="form-control" name="image" id="image" accept="image/*" required>
     </div>
+    <div class="container mb-3 py-4">
+      {% comment %} {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit" class="btn btn-primary">Submit</button> {% endcomment %}
+          {% csrf_token %}
+    <div class="mb-3">
+      {{ form.name.label_tag }}
+      {{ form.name }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.price.label_tag }}
+      {{ form.price }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.category.label_tag }}
+      {{ form.category }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.image.label_tag }}
+      {{ form.image }}
+    </div>
 
     <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-</div>
+
+    </div>
+     {% comment %} <button type="submit" class="btn btn-primary">Submit</button> {% endcomment %}
+  </form> 
+</div> 
+
+
 
 
 <!-- ✅ Success Popup Modal -->

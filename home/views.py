@@ -5,6 +5,7 @@ from django.contrib import messages # type: ignore
 # from django.contrib.auth.models import User
 # from django.contrib.auth import logout, authenticate, login
 from home.models import Product
+from .forms import ProductForm
 # from home.models import Users
 import razorpay
 from django.conf import settings
@@ -61,19 +62,54 @@ def contact(request):
         messages.success(request, 'Your message is sent!')
     return render(request, 'contact.html')
 
+# def product(request):
+#     if request.method == "POST":
+#         name = request.POST.get('name')
+#         description = request.POST.get('description', '')
+#         price = request.POST.get('price')
+#         image = request.FILES.get('image')
+#         product = Product(name=name, description=description, price=price, image=image)
+#         product.save()
+#     return render(request, 'product.html')
+
 def product(request):
     if request.method == "POST":
         name = request.POST.get('name')
         description = request.POST.get('description', '')
         price = request.POST.get('price')
         image = request.FILES.get('image')
-        product = Product(name=name, description=description, price=price, image=image)
-        product.save()
+        category = request.POST.get('category')
+
+        try:
+            product = Product(name=name, description=description, price=price, image=image, category=category )
+            product.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
     return render(request, 'product.html')
 
+
+
+
+
+
+# def items(request):
+#     # product = Product.objects.filter()
+#     products = Product.objects.all()
+#     return render(request, 'items.html', {'products': products})
+from django.shortcuts import render
+from .models import Product
+
 def items(request):
-    product = Product.objects.filter()
-    return render(request, 'items.html', {'product': product})
+    categories = ['veg', 'non_veg', 'cold_drinks', 'snacks']
+    categorized_products = {}
+
+    for cat in categories:
+        categorized_products[cat] = Product.objects.filter(category=cat)
+
+    return render(request, 'items.html', {'categorized_products': categorized_products})
+
 
 # def users(request):
 #     if request.method == "POST":
