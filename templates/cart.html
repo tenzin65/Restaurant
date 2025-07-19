@@ -23,21 +23,23 @@
         </button>
     </div>
 </div>
- 
-    
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         updateCartCount(); // Ensure cart count is updated when page loads
         loadCartItems();
+
+        // Add event listener for Proceed to Pay button
+        document.getElementById('pay-now').addEventListener('click', proceedToPay);
     });
     
     function updateCartCount() {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let cartCountElement = document.getElementById("cart-count"); // Navbar count
-    
-        cartCountElement.innerText = cart.length; // Show the correct count
+        if(cartCountElement) {
+            cartCountElement.innerText = cart.length; // Show the correct count
+        }
     }
     
     function addToCart(item) {
@@ -49,43 +51,42 @@
     }
     
     function loadCartItems() {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    let cartContainer = document.getElementById('cart-items');
-    let totalPrice = 0;
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartContainer = document.getElementById('cart-items');
+        let totalPrice = 0;
 
-    cartContainer.innerHTML = ""; // Clear previous items
+        cartContainer.innerHTML = ""; // Clear previous items
 
-    if (cart.length === 0) {
-        cartContainer.innerHTML = "<p style='text-align: center;'>Your cart is empty.</p>";
-        document.getElementById('total-price').innerText = "0";
-        return;
+        if (cart.length === 0) {
+            cartContainer.innerHTML = "<p style='text-align: center;'>Your cart is empty.</p>";
+            document.getElementById('total-price').innerText = "0";
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            let itemTotal = parseFloat(item.price) * (item.quantity || 1);
+            totalPrice += itemTotal;
+
+            let cartItem = document.createElement('div');
+            cartItem.style = "display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #fff;";
+
+            cartItem.innerHTML = `
+                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+                <div>
+                    <h4>${item.name}</h4>
+                    <p>Price: ₹${item.price} × ${item.quantity || 1}</p>
+                    <p><strong>Subtotal: ₹${itemTotal.toFixed(2)}</strong></p>
+                </div>
+                <button onclick="removeFromCart(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Remove</button>
+            `;
+
+            cartContainer.appendChild(cartItem);
+        });
+
+        document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+        document.getElementById('pay-now').setAttribute("data-amount", totalPrice * 100);
     }
 
-    cart.forEach((item, index) => {
-        let itemTotal = parseFloat(item.price) * (item.quantity || 1);
-        totalPrice += itemTotal;
-
-        let cartItem = document.createElement('div');
-        cartItem.style = "display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #fff;";
-
-        cartItem.innerHTML = `
-            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
-            <div>
-                <h4>${item.name}</h4>
-                <p>Price: ₹${item.price} × ${item.quantity || 1}</p>
-                <p><strong>Subtotal: ₹${itemTotal.toFixed(2)}</strong></p>
-            </div>
-            <button onclick="removeFromCart(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Remove</button>
-        `;
-
-        cartContainer.appendChild(cartItem);
-    });
-
-    document.getElementById('total-price').innerText = totalPrice.toFixed(2);
-    document.getElementById('pay-now').setAttribute("data-amount", totalPrice * 100);
-}
-
-    
     function removeFromCart(index) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         cart.splice(index, 1); // Remove the selected item
@@ -95,9 +96,52 @@
         loadCartItems(); // Reload the cart items
     }
     
-    
     function goBack() {
         window.history.back(); // Goes to the previous page (items page)
+    }
+
+    function proceedToPay() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        if (cart.length === 0) {
+            alert("Your cart is empty.");
+            return;
+        }
+
+        let totalAmount = 0;
+        cart.forEach(item => {
+            totalAmount += parseFloat(item.price) * (item.quantity || 1);
+        });
+
+        // Convert to paise (Razorpay expects amount in paise)
+        let amountInPaise = Math.round(totalAmount * 100);
+
+        var options = {
+            key: "YOUR_RAZORPAY_KEY",  // Replace with your Razorpay API key
+            amount: amountInPaise,
+            currency: "INR",
+            name: "Your Store Name",
+            description: "Purchase Description",
+            handler: function (response) {
+                alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                // Clear cart after successful payment
+                localStorage.removeItem('cart');
+                updateCartCount();
+                loadCartItems();
+                // Optional: Redirect to success page
+                // window.location.href = '/payment-success/';
+            },
+            modal: {
+                ondismiss: function(){
+                    alert('Payment popup closed.');
+                }
+            },
+            theme: {
+                color: "#3399cc"
+            }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.open();
     }
 </script>
 

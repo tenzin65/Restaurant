@@ -84,18 +84,23 @@
                 style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
             Place Order
         </button>
-
+        {% comment %} <button id="proceed-to-pay-btn" 
+            style="background-color: orange; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+            Proceed to Pay
+        </button> {% endcomment %}
         <!-- Add More Button, hidden by default -->
         <button id="add-more-btn" 
                 onclick="addMore()" 
                 style="background-color: blue; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px; display: none;">
             Add More
         </button>
+        
+
     </div>
 </div>
 
 
-<script>
+{% comment %} <script>
     let selectedItem = null;
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -232,7 +237,180 @@
     function closePopup() {
         document.getElementById('popup-modal').style.display = "none";
     }
+</script> {% endcomment %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    let selectedItem = null;
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateCartCount();
+        renderCart();
+
+        document.querySelectorAll(".view-details-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                selectedItem = {
+                    name: this.getAttribute("data-name"),
+                    description: this.getAttribute("data-description"),
+                    price: parseFloat(this.getAttribute("data-price")),
+                    image: this.getAttribute("data-image"),
+                    quantity: 1
+                };
+
+                const parser = new DOMParser();
+                selectedItem.description = parser.parseFromString(selectedItem.description, "text/html").body.textContent;
+
+                document.getElementById('popup-title').innerText = selectedItem.name;
+                document.getElementById('popup-description').innerHTML = selectedItem.description;
+                document.getElementById('popup-price').innerText = selectedItem.price.toFixed(2);
+                document.getElementById('popup-image').src = selectedItem.image;
+
+                let cart = JSON.parse(localStorage.getItem('cart')) || [];
+                let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
+
+                if (itemIndex !== -1) {
+                    document.getElementById('place-order-btn').innerText = "Remove from Cart";
+                    document.getElementById('place-order-btn').style.backgroundColor = "red";
+                    document.getElementById('add-more-btn').style.display = "inline-block";
+
+                    let item = cart[itemIndex];
+                    let totalPrice = item.price * item.quantity;
+                    document.getElementById('popup-price').innerText = totalPrice.toFixed(2);
+                } else {
+                    document.getElementById('place-order-btn').innerText = "Place Order";
+                    document.getElementById('place-order-btn').style.backgroundColor = "green";
+                    document.getElementById('add-more-btn').style.display = "none";
+                    document.getElementById('popup-price').innerText = selectedItem.price.toFixed(2);
+                }
+
+                document.getElementById('popup-modal').style.display = "flex";
+            });
+        });
+
+        window.onclick = function (event) {
+            var modal = document.getElementById('popup-modal');
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        document.getElementById('proceed-to-pay-btn').addEventListener('click', function () {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                alert("Your cart is empty.");
+                return;
+            }
+
+            let totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let amountInPaise = totalAmount * 100;
+
+            var options = {
+                "key": "rzp_test_your_key_here", // 🔁 Replace with your Razorpay key
+                "amount": amountInPaise,
+                "currency": "INR",
+                "name": "Your Shop Name",
+                "description": "Order Payment",
+                "image": "https://yourlogo.url/logo.png", // Optional
+                "handler": function (response) {
+                    alert("✅ Payment successful!\nPayment ID: " + response.razorpay_payment_id);
+                    localStorage.removeItem('cart');
+                    updateCartCount();
+                    renderCart();
+                },
+                "prefill": {
+                    "name": "Customer Name",
+                    "email": "customer@example.com",
+                    "contact": "9999999999"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        });
+    });
+
+    function updateCartCount() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartCountElement = document.getElementById('cart-count');
+        if (cartCountElement) {
+            let totalQuantity = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCountElement.innerText = totalQuantity;
+        }
+        renderCart();
+    }
+
+    function renderCart() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let cartDisplay = document.getElementById('cart-display');
+        if (!cartDisplay) return;
+
+        if (cart.length === 0) {
+            cartDisplay.innerHTML = "<p>Your cart is empty.</p>";
+            document.getElementById('proceed-to-pay-btn').style.display = 'none';
+            return;
+        }
+
+        let html = '<ul style="list-style:none; padding:0;">';
+
+        cart.forEach(item => {
+            let totalPrice = (item.price * item.quantity).toFixed(2);
+            html += `
+                <li style="border-bottom: 1px solid #ccc; padding: 10px 0;">
+                    <strong>${item.name}</strong><br>
+                    Quantity: ${item.quantity}<br>
+                    Price per item: ₹${item.price.toFixed(2)}<br>
+                    Total: ₹${totalPrice}
+                </li>
+            `;
+        });
+
+        html += '</ul>';
+        cartDisplay.innerHTML = html;
+        document.getElementById('proceed-to-pay-btn').style.display = 'inline-block';
+    }
+
+    function placeOrder() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
+
+        if (itemIndex !== -1) {
+            cart.splice(itemIndex, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert("❌ " + selectedItem.name + " has been removed from your cart!");
+        } else {
+            cart.push({...selectedItem});
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert("✅ " + selectedItem.name + " has been added to your cart!");
+        }
+
+        updateCartCount();
+        closePopup();
+    }
+
+    function addMore() {
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
+
+        if (itemIndex !== -1) {
+            cart[itemIndex].quantity += 1;
+            localStorage.setItem('cart', JSON.stringify(cart));
+
+            let newTotalPrice = cart[itemIndex].price * cart[itemIndex].quantity;
+            document.getElementById('popup-price').innerText = newTotalPrice.toFixed(2);
+
+            alert("✅ Added one more " + selectedItem.name + " to your cart!");
+            updateCartCount();
+        }
+    }
+
+    function closePopup() {
+        document.getElementById('popup-modal').style.display = "none";
+    }
 </script>
+
 
 
 {% endblock body %}

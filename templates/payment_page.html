@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<h1>Proceeding to Payment</h1>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<button id="rzp-button">Pay Now</button>
+
+<script>
+var options = {
+    "key": "{{ razorpay_key }}",
+    "amount": "{{ amount }}",
+    "currency": "INR",
+    "name": "My Shop",
+    "description": "Test Payment",
+    "order_id": "{{ order_id }}",
+    "handler": function (response){
+        alert("Payment Successful!");
+        // You can also send the response.razorpay_payment_id to your backend to verify
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp = new Razorpay(options);
+document.getElementById('rzp-button').onclick = function(e){
+    rzp.open();
+    e.preventDefault();
+}
+</script>
+{% endblock body %}

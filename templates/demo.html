@@ -1,311 +1,104 @@
-{% extends 'base.html' %}
-
+{% comment %} {% extends 'base.html' %}
 
 {% block body %}
+{% load static %}
 
+<div class="container" style="max-width: 1200px; margin: auto; padding: 20px;">
+    <h1 class="text-center">Your Cart</h1>
 
-{% comment %} <div class="container" style="max-width: 1200px; margin: auto; padding: 20px;">
-    <h1 class="text-center">Menus</h1>
-    <h2 class="flash-text ">Please Refresh the page if items is removed from cart</h2>
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px;">
-        {% for product in products %}
-        <div style="width: calc(33.33% - 20px); border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; background-color: #fff;">
-            <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                 style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
-            <h2>{{ product.name }}</h2>
-            <p><strong>Price: ₹{{ product.price }}</strong></p>
-
-            <!-- View Details button -->
-            <button class="view-details-btn" 
-                    data-name="{{ product.name }}" 
-                    data-description="{{ product.description|linebreaks }}" 
-                    data-price="{{ product.price }}"
-                    data-image="{{ product.image.url }}"
-                    style="background-color: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                View Details
-            </button>
-        </div>
-        {% endfor %}
+    <div id="cart-items" style="margin-top: 20px;">
+        <!-- Cart items will be dynamically added here -->
     </div>
-</div> {% endcomment %}
 
-<div class="container" style="max-width: 1500px; margin: auto; padding: 20px;">
-    <h1 class="text-center">Menus</h1>
-    <h2 class="flash-text">Please refresh the page if item is removed from cart</h2>
-
-    {% for category, products in categorized_products.items %}
-        <div style="text-align: center; margin-top: 30px;">
-            <h3 style="
-                font-size: 100px; 
-                font-weight: bold; 
-                font-style: italic;
-                background: linear-gradient(to right, #e74c3c, #f39c12, #27ae60, #2980b9, #8e44ad);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                margin: 0;">
-                {{ category|capfirst }}
-            </h3>
-        </div>
-        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-            {% for product in products %}
-            <div style="width: calc(33.33% - 20px); border: 1px solid #ddd; border-radius: 10px; padding: 15px; text-align: center; background-color: #fff;">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" 
-                     style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
-                <h2>{{ product.name }}</h2>
-                <p><strong>Price: ₹{{ product.price }}</strong></p>
-                <button class="view-details-btn" 
-                        data-name="{{ product.name }}" 
-                        data-description="{{ product.description|linebreaks }}" 
-                        data-price="{{ product.price }}"
-                        data-image="{{ product.image.url }}"
-                        style="background-color: black; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-                    View Details
-                </button>
-            </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-</div>
-
-<!-- Popup Modal -->
-{% comment %} <div id="popup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
-    <div style="background: white; padding: 20px; border-radius: 10px; width: 800px; height: 600px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
-        <span onclick="closePopup()" style="position: absolute; top: 10px; right: 15px; font-size: 18px; cursor: pointer;">✖</span>
-        <img id="popup-image" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
-        <h2 id="popup-title"></h2>
-        <p id="popup-description" style="white-space: pre-line; text-align: left; padding: 10px;"></p>
-        <p><strong>Price: ₹<span id="popup-price"></span></strong></p>
-
-
-        <!-- Place Order Button -->
-        <button id="place-order-btn" 
-                onclick="placeOrder()" 
-                style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
-            Place Order
+    <div style="text-align: right; margin-top: 20px;">
+        <h3>Total Price: ₹<span id="total-price">0</span></h3>
+        <button id="pay-now"
+            style="background-color: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+            Proceed to Pay
+        </button>
+        <!-- Back Button (Same Width) -->
+        <button onclick="goBack()"
+        style="background-color: green; color: white; padding: 10px 20px; width: 200px; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">
+        Back
         </button>
     </div>
 </div>
+ 
+    
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        updateCartCount();
-    
-        document.querySelectorAll(".view-details-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                selectedItem = {
-                    name: this.getAttribute("data-name"),
-                    description: this.getAttribute("data-description"),
-                    price: this.getAttribute("data-price"),
-                    image: this.getAttribute("data-image")
-                };
-    
-                // Decode HTML entities in description
-                const parser = new DOMParser();
-                selectedItem.description = parser.parseFromString(selectedItem.description, "text/html").body.textContent;
-    
-                // Set popup modal content
-                document.getElementById('popup-title').innerText = selectedItem.name;
-                document.getElementById('popup-description').innerHTML = selectedItem.description;
-                document.getElementById('popup-price').innerText = selectedItem.price;
-                document.getElementById('popup-image').src = selectedItem.image;
-    
-                // Set button text and color based on whether the item is already in the cart
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                let itemExists = cart.some(item => item.name === selectedItem.name);
-    
-                if (itemExists) {
-                    document.getElementById('place-order-btn').innerText = "Remove from Cart";
-                    document.getElementById('place-order-btn').style.backgroundColor = "red";
-                } else {
-                    document.getElementById('place-order-btn').innerText = "Place Order";
-                    document.getElementById('place-order-btn').style.backgroundColor = "green";
-                }
-    
-                // Show the modal
-                document.getElementById('popup-modal').style.display = "flex";
-            });
-        });
-    
-        // Close popup when clicking outside the modal
-        window.onclick = function (event) {
-            var modal = document.getElementById('popup-modal');
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        };
+        updateCartCount(); // Ensure cart count is updated when page loads
+        loadCartItems();
     });
     
-    // Function to update cart count in the navbar
     function updateCartCount() {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            cartCountElement.innerText = cart.length;
-        }
+        let cartCountElement = document.getElementById("cart-count"); // Navbar count
+    
+        cartCountElement.innerText = cart.length; // Show the correct count
     }
     
-    // Function to add or remove item from cart and update count
-    function placeOrder() {
+    function addToCart(item) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
-    
-        if (itemIndex !== -1) {
-            // Item exists, so remove it
-            cart.splice(itemIndex, 1);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert("❌ " + selectedItem.name + " has been removed from your cart!");
-        } else {
-            // Item doesn't exist, so add it
-            cart.push(selectedItem);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            alert("✅ " + selectedItem.name + " has been added to your cart!");
-        }
-    
-        // Update cart count
-        updateCartCount();
-    
-        // Close popup after updating
-        closePopup();
-    }
-    
-    // Function to close popup
-    function closePopup() {
-        document.getElementById('popup-modal').style.display = "none";
-    }
-    
-</script> {% endcomment %}
-
-<!-- Cart Display -->
-<div style="margin: 20px;">🛒 Cart Items: <span id="cart-count">0</span></div>
-
-<!-- Example Product Button -->
-<!-- You would normally loop this for multiple products -->
-<button class="view-details-btn"
-    data-name="Sample Product"
-    data-description="This is a sample product with details."
-    data-price="499"
-    data-image="https://via.placeholder.com/800x200"
-    style="margin-bottom: 20px;">
-    View Product
-</button>
-
-<!-- Popup Modal -->
-<div id="popup-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
-    <div style="background: white; padding: 20px; border-radius: 10px; width: 1500px; height: 650px; text-align: center; position: relative; display: flex; flex-direction: column; justify-content: space-between;">
-        <span onclick="closePopup()" style="position: absolute; top: 10px; right: 15px; font-size: 10px; cursor: pointer;">✖</span>
-        <img id="popup-image" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px;">
-        <h2 id="popup-title"></h2>
-        <p id="popup-description" style="white-space: pre-line; text-align: left; padding: 10px;"></p>
-        <p><strong>Price: ₹<span id="popup-price"></span></strong></p>
-
-        <!-- Quantity Dropdown -->
-        <label for="quantity" style="font-size: 14px; margin-top: 10px;">Select Quantity:</label>
-        <select id="quantity" style="font-size: 12px; padding: 5px; width: 60px; margin: 10px auto;">
-            <!-- JavaScript will populate options 1–9 -->
-        </select>
-
-        <!-- Order Button -->
-        <button id="place-order-btn" 
-                onclick="placeOrder()" 
-                style="background-color: green; color: white; padding: 8px 16px; font-size: 14px; border: none; border-radius: 5px; cursor: pointer;">
-            Place Order
-        </button>
-    </div>
-</div>
-
-<script>
-    let selectedItem = {};
-
-    document.addEventListener("DOMContentLoaded", function () {
-        populateQuantityDropdown();
-        updateCartCount();
-
-        document.querySelectorAll(".view-details-btn").forEach(button => {
-            button.addEventListener("click", function () {
-                selectedItem = {
-                    name: this.getAttribute("data-name"),
-                    description: this.getAttribute("data-description"),
-                    price: this.getAttribute("data-price"),
-                    image: this.getAttribute("data-image")
-                };
-
-                // Decode description safely
-                const parser = new DOMParser();
-                selectedItem.description = parser.parseFromString(selectedItem.description, "text/html").body.textContent;
-
-                document.getElementById('popup-title').innerText = selectedItem.name;
-                document.getElementById('popup-description').innerText = selectedItem.description;
-                document.getElementById('popup-price').innerText = selectedItem.price;
-                document.getElementById('popup-image').src = selectedItem.image;
-
-                // Check if already in cart
-                let cart = JSON.parse(localStorage.getItem('cart')) || [];
-                let existingItem = cart.find(item => item.name === selectedItem.name);
-
-                if (existingItem) {
-                    document.getElementById('place-order-btn').innerText = "Update Quantity";
-                    document.getElementById('place-order-btn').style.backgroundColor = "orange";
-                    document.getElementById('quantity').value = existingItem.quantity;
-                } else {
-                    document.getElementById('place-order-btn').innerText = "Place Order";
-                    document.getElementById('place-order-btn').style.backgroundColor = "green";
-                    document.getElementById('quantity').value = 1;
-                }
-
-                document.getElementById('popup-modal').style.display = "flex";
-            });
-        });
-
-        window.onclick = function (event) {
-            let modal = document.getElementById('popup-modal');
-            if (event.target === modal) {
-                closePopup();
-            }
-        };
-    });
-
-    function populateQuantityDropdown() {
-        const dropdown = document.getElementById('quantity');
-        for (let i = 1; i <= 9; i++) {
-            const option = document.createElement('option');
-            option.value = i;
-            option.textContent = i;
-            dropdown.appendChild(option);
-        }
-    }
-
-    function placeOrder() {
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let quantity = parseInt(document.getElementById('quantity').value);
-        let itemIndex = cart.findIndex(item => item.name === selectedItem.name);
-
-        if (itemIndex !== -1) {
-            cart[itemIndex].quantity = quantity;
-            alert("🔁 Updated quantity of " + selectedItem.name + " to " + quantity);
-        } else {
-            selectedItem.quantity = quantity;
-            cart.push(selectedItem);
-            alert("✅ Added " + selectedItem.name + " x" + quantity + " to cart");
-        }
-
+        cart.push(item);
         localStorage.setItem('cart', JSON.stringify(cart));
-        updateCartCount();
-        closePopup();
+    
+        updateCartCount(); // Update the cart count dynamically
+    }
+    
+    function loadCartItems() {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let cartContainer = document.getElementById('cart-items');
+    let totalPrice = 0;
+
+    cartContainer.innerHTML = ""; // Clear previous items
+
+    if (cart.length === 0) {
+        cartContainer.innerHTML = "<p style='text-align: center;'>Your cart is empty.</p>";
+        document.getElementById('total-price').innerText = "0";
+        return;
     }
 
-    function updateCartCount() {
+    cart.forEach((item, index) => {
+        let itemTotal = parseFloat(item.price) * (item.quantity || 1);
+        totalPrice += itemTotal;
+
+        let cartItem = document.createElement('div');
+        cartItem.style = "display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; background-color: #fff;";
+
+        cartItem.innerHTML = `
+            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;">
+            <div>
+                <h4>${item.name}</h4>
+                <p>Price: ₹${item.price} × ${item.quantity || 1}</p>
+                <p><strong>Subtotal: ₹${itemTotal.toFixed(2)}</strong></p>
+            </div>
+            <button onclick="removeFromCart(${index})" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Remove</button>
+        `;
+
+        cartContainer.appendChild(cartItem);
+    });
+
+    document.getElementById('total-price').innerText = totalPrice.toFixed(2);
+    document.getElementById('pay-now').setAttribute("data-amount", totalPrice * 100);
+}
+
+    
+    function removeFromCart(index) {
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        let totalQty = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
-        let cartCountElement = document.getElementById('cart-count');
-        if (cartCountElement) {
-            cartCountElement.innerText = totalQty;
-        }
+        cart.splice(index, 1); // Remove the selected item
+        localStorage.setItem('cart', JSON.stringify(cart));
+    
+        updateCartCount(); // Update cart count in navbar
+        loadCartItems(); // Reload the cart items
     }
-
-    function closePopup() {
-        document.getElementById('popup-modal').style.display = "none";
+    
+    
+    function goBack() {
+        window.history.back(); // Goes to the previous page (items page)
     }
 </script>
 
-
-{% endblock body %}
+{% endblock body %} {% endcomment %}

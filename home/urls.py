@@ -15,8 +15,9 @@ urlpatterns = [
     # path('userss', views.userss, name='userss'),
     # path('users', views.users, name='users'),
     path('cart', views.cart, name='cart'),
-    path('initiate-payment', views.initiate_payment, name='initiate_payment'),
-    path('order-success', views.order_success, name='order_success'),
+    path('create-order/', views.create_order, name='create_order'),
+    # path('initiate-payment', views.initiate_payment, name='initiate_payment'),
+    # path('order-success', views.order_success, name='order_success'),
     # path('clear-session/', views.clear_session, name='clear_session'),
 
    
